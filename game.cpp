@@ -25,7 +25,9 @@ void Game::init(){
 
     isRunning = true;
     p = new Player();
+    e = new Enemy();
     p->player_init(rend);
+    e->enemy_init(rend);
 }
 
 void Game::handleEvents(){
@@ -64,8 +66,10 @@ void Game::handleEvents(){
 }
 void Game::update(){
     p->player_update();
+    e->enemy_update();
     if (count % 3 == 0){
         p->vely += 1;
+        e->vely += 1;
     }
     
     count++;
@@ -75,6 +79,7 @@ void Game::update(){
 void Game::render(){
     SDL_RenderClear(rend);
     SDL_RenderCopy(rend, p->player_tex, 0, p->player_rect);
+    SDL_RenderCopy(rend, e->enemy_tex, 0, e->enemy_rect);
     SDL_RenderPresent(rend);
 }
 SDL_Renderer* Game::getRend(){

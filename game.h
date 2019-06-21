@@ -2,6 +2,7 @@
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_timer.h>
 #include "player.h"
+#include "enemy.h"
 
 class Game{
 
@@ -26,6 +27,7 @@ public:
     bool running();
 
     Player *p;
+    Enemy *e;
 
     int count;
 

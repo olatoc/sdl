@@ -15,7 +15,7 @@ Player::~Player(){
 
 }
 void Player::player_init(SDL_Renderer *render){
-    SDL_Surface *temp_surface = IMG_Load("/home/oliver/Documents/Games/SDL/case.jpg");
+    SDL_Surface *temp_surface = IMG_Load("/home/oliver/Documents/Games/SDL/img/quieres.jpg");
     player_tex = SDL_CreateTextureFromSurface(render, temp_surface);
     SDL_FreeSurface(temp_surface);
 
@@ -37,7 +37,7 @@ void Player::player_update(){
         vely = 0;
     }
     if (!topClamp()){
-        vely *= -1;
+        vely *= -5;
     }
     isJump = false;
 
@@ -61,7 +61,7 @@ bool Player::topClamp(){
 }
 
 void Player::jump(){
-    vely = -10;
+    vely = -20;
 }
 
 void Player::move(bool dir){
