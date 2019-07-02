@@ -4,7 +4,7 @@
 
 class Player{
 public:
-    Player();
+    Player(int width, int height);
     ~Player();
 
     SDL_Texture *player_tex;
@@ -14,16 +14,21 @@ public:
     void player_events();
     void player_update();
     void jump();
-    void move(bool dir);
+    void movex(bool dir);
+    void movey(bool dir);
+    bool leftClamp();
+    bool rightClamp();
     bool topClamp();
     bool bottomClamp();
     void player_init(SDL_Renderer *render);
     void player_render();
     void player_clean();
 
+    int width, height;
     int x, y;
     int velx, vely;
 
     bool isJump;
     bool isMove;
+    bool isSwitch;
 };

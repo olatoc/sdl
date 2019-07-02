@@ -10,12 +10,18 @@ private:
     bool isRunning;
     SDL_Window *win;
     SDL_Renderer *rend;
+    SDL_Surface* screen;
+    const Uint8 *state;
 
 public:
-    Game();
+    Game(int width, int height);
     ~Game();
+
+    int width, height;
     void init();
     void player_init();
+    void switch_gravity();
+    int g;
 
     void handleEvents();
     void update();

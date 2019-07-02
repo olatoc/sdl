@@ -4,7 +4,9 @@
 #include <SDL2/SDL_timer.h> 
 #include "player.h"
 
-Player::Player(){
+Player::Player(int wid, int hgt){
+    width = wid;
+    height = hgt;
     x = 100;
     y = 100;
     velx = 0;
@@ -15,56 +17,62 @@ Player::~Player(){
 
 }
 void Player::player_init(SDL_Renderer *render){
-    SDL_Surface *temp_surface = IMG_Load("/home/oliver/Documents/Games/SDL/img/quieres.jpg");
+    SDL_Surface *temp_surface = IMG_Load("/home/oliver/Documents/Games/SDL/img/dog.png");
     player_tex = SDL_CreateTextureFromSurface(render, temp_surface);
     SDL_FreeSurface(temp_surface);
 
     player_rect = new SDL_Rect();
     player_rect->x = 100;
     player_rect->y = 500;
-    player_rect->w = 100;
-    player_rect->h = 100;
+    player_rect->w = width;
+    player_rect->h = height;
 }
 
 void Player::player_update(){
-
-    if (vely == 0){
-        //printf("%d\n", player_rect->y);
-    }
-
 
     if (!isJump && !bottomClamp()){
         vely = 0;
     }
     if (!topClamp()){
-        vely *= -5;
-    }
-    isJump = false;
-
-    if (player_rect->x > 900 || player_rect->x < 0){
-        velx *= -1;
+        vely *= -1;
     }
 
-    //if (isMove){
+    if (rightClamp() || leftClamp()){
+        velx = 0;
+    }
+
+    if (isMove){
         player_rect->x += velx;
-    //}
+    }
     player_rect->y += vely;
     isMove = false;
-    //printf("%d\n", vely);
 }
 
+bool Player::leftClamp(){
+    return player_rect->x + velx < 0 ? true : false;
+}
+bool Player::rightClamp(){
+    return player_rect->x + velx > 2000 - player_rect->w ? true : false;
+}
 bool Player::bottomClamp(){
-    return player_rect->y < 900 ? true : false;
+    return player_rect->y + vely < 1500 - height ? true : false;
 }
 bool Player::topClamp(){
-    return player_rect->y > 0 ? true : false;
+    return player_rect->y + vely > 0 ? true : false;
 }
 
 void Player::jump(){
     vely = -20;
 }
 
-void Player::move(bool dir){
+void Player::movex(bool dir){
+    if (dir){
+        velx = 10;
+    } else{
+        velx = -10;
+    }
+}
+void Player::movey(bool dir){
     if (dir){
         velx = 5;
     } else{

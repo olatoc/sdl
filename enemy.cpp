@@ -22,17 +22,20 @@ void Enemy::enemy_init(SDL_Renderer *render){
     enemy_rect = new SDL_Rect();
     enemy_rect->x = 100;
     enemy_rect->y = 500;
-    enemy_rect->w = 100;
+    enemy_rect->w = 150;
     enemy_rect->h = 100;
 }
 
 void Enemy::enemy_update(){
 
+    enemy_rect->w = (int)(1000 - enemy_rect->y)/2;
+    enemy_rect->h = (int)(1000 - enemy_rect->y)/2;
+
     if (!bottomClamp()){
         vely *= -1;
     }
     if (!topClamp()){
-        vely *= -5;
+        vely *= -1;
     }
 
     if (enemy_rect->x > 900 || enemy_rect->x < 0){
