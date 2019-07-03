@@ -1,8 +1,10 @@
 #include <stdio.h>
-#include <SDL2/SDL.h> 
-#include <SDL2/SDL_image.h>
-#include <SDL2/SDL_timer.h> 
 #include "game.h"
+
+#define px p->player_rect->x
+#define py p->player_rect->y
+#define ph p->player_rect->h
+#define pw p->player_rect->w
 
 SDL_Rect *tempRect;
 
@@ -22,6 +24,7 @@ Game::Game(int width, int height){
 Game::~Game(){
     
 }
+
 void Game::init(){
     screen = SDL_CreateRGBSurface(0, width, height, 32, 0, 0, 0, 0);
     count = 0;
@@ -29,15 +32,12 @@ void Game::init(){
 
     isRunning = true;
     p = new Player(200,200);
-    e = new Enemy();
+    e = new Enemy(200,200);
+    plat[0] = new Platform(1000,1000, 800, 50);
+    plat[1] = new Platform(500,500, 800, 50);
     p->player_init(rend);
     e->enemy_init(rend);
 
-    tempRect = new SDL_Rect();
-    tempRect->x = 500;
-    tempRect->y = 500;
-    tempRect->w = 400;
-    tempRect->h = 50;
 }
 
 void Game::handleEvents(){
@@ -77,9 +77,14 @@ void Game::handleEvents(){
 void Game::update(){
     p->player_update();
     e->enemy_update();
-    if (count % 3 == 0){
+    if (count % 2 == 0){
         p->vely += g;
-        e->vely += g;
+        e->vely += 2*g;
+    }
+    if (check()){
+        p->isPlatform = true;
+    } else{
+        p->isPlatform = false;
     }
     count++;
     //printf("%d\n",count);
@@ -87,14 +92,33 @@ void Game::update(){
 }
 void Game::render(){
     SDL_RenderClear(rend);
-    SDL_SetRenderDrawColor( rend, 0, 0, 255, 255 );
+    SDL_SetRenderDrawColor( rend, 0, 0, 100, 255 );
     //Render player
     SDL_RenderCopy(rend, p->player_tex, 0, p->player_rect);
+    //SDL_RenderCopy(rend, e->enemy_tex, 0, e->enemy_rect);
+
     //Render rects
-    //SDL_RenderFillRect(rend, tempRect);
-    SDL_SetRenderDrawColor( rend, 255, 105, 180, 255 );
+    for (int i = 0; i < 2; i++){
+        SDL_RenderFillRect(rend, plat[i]->rect);
+    }
+    SDL_SetRenderDrawColor( rend, 50, 50, 180, 255 );
     SDL_RenderPresent(rend);
 }
+
+bool Game::check(){
+    //printf("%d\n", sizeof(plat)/sizeof(void*));
+    for (int i = 0; i < 2; i++){
+        if (px + pw > plat[i]->rect->x
+        && px < plat[i]->rect->x + plat[i]->rect->w
+        && py  + ph + p->vely > plat[i]->rect->y
+        && py + ph < plat[i]->rect->y + 10
+        && p->vely > 0){
+            return true;
+        }
+    }
+    return false;
+}
+
 SDL_Renderer* Game::getRend(){
     return rend;
 }

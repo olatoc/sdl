@@ -31,4 +31,5 @@ public:
     bool isJump;
     bool isMove;
     bool isSwitch;
+    bool isPlatform;
 };

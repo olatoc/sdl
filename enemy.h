@@ -4,7 +4,7 @@
 
 class Enemy{
 public:
-    Enemy();
+    Enemy(int width, int height);
     ~Enemy();
 
     SDL_Texture *enemy_tex;
@@ -15,6 +15,8 @@ public:
     void enemy_update();
     void jump();
     void move(bool dir);
+    bool rightClamp();
+    bool leftClamp();
     bool topClamp();
     bool bottomClamp();
     void enemy_init(SDL_Renderer *render);
@@ -23,6 +25,7 @@ public:
 
     int x, y;
     int velx, vely;
+    int width, height;
 
     bool isJump;
     bool isMove;

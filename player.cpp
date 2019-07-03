@@ -1,14 +1,12 @@
 #include <stdio.h>
-#include <SDL2/SDL.h> 
-#include <SDL2/SDL_image.h>
-#include <SDL2/SDL_timer.h> 
 #include "player.h"
+
+#define x player_rect->x
+#define y player_rect->y
 
 Player::Player(int wid, int hgt){
     width = wid;
     height = hgt;
-    x = 100;
-    y = 100;
     velx = 0;
     vely = 0;
 }
@@ -22,15 +20,18 @@ void Player::player_init(SDL_Renderer *render){
     SDL_FreeSurface(temp_surface);
 
     player_rect = new SDL_Rect();
-    player_rect->x = 100;
-    player_rect->y = 500;
+    x = 100;
+    y = 500;
     player_rect->w = width;
     player_rect->h = height;
 }
 
 void Player::player_update(){
 
-    if (!isJump && !bottomClamp()){
+    if (bottomClamp()){
+        vely = 0;
+    }
+    if (!isJump && isPlatform){
         vely = 0;
     }
     if (!topClamp()){
@@ -42,23 +43,23 @@ void Player::player_update(){
     }
 
     if (isMove){
-        player_rect->x += velx;
+        x += velx;
     }
-    player_rect->y += vely;
+    y += vely;
     isMove = false;
 }
 
 bool Player::leftClamp(){
-    return player_rect->x + velx < 0 ? true : false;
+    return x + velx < 0 ? true : false;
 }
 bool Player::rightClamp(){
-    return player_rect->x + velx > 2000 - player_rect->w ? true : false;
+    return x + velx > 2000 - player_rect->w ? true : false;
 }
 bool Player::bottomClamp(){
-    return player_rect->y + vely < 1500 - height ? true : false;
+    return y + vely < 1500 - height ? false : true;
 }
 bool Player::topClamp(){
-    return player_rect->y + vely > 0 ? true : false;
+    return y + vely > 0 ? true : false;
 }
 
 void Player::jump(){

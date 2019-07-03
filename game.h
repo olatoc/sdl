@@ -3,6 +3,7 @@
 #include <SDL2/SDL_timer.h>
 #include "player.h"
 #include "enemy.h"
+#include "env.h"
 
 class Game{
 
@@ -22,6 +23,7 @@ public:
     void player_init();
     void switch_gravity();
     int g;
+    bool check();
 
     void handleEvents();
     void update();
@@ -34,6 +36,7 @@ public:
 
     Player *p;
     Enemy *e;
+    Platform *plat[5];
 
     int count;
 
