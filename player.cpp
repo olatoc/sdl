@@ -20,10 +20,13 @@ void Player::player_init(SDL_Renderer *render){
     SDL_FreeSurface(temp_surface);
 
     player_rect = new SDL_Rect();
+    //health_bar = new SDL_Rect();
     x = 100;
     y = 500;
     player_rect->w = width;
     player_rect->h = height;
+
+    health = 100;
 }
 
 void Player::player_update(){
@@ -31,7 +34,7 @@ void Player::player_update(){
     if (bottomClamp()){
         vely = 0;
     }
-    if (!isJump && isPlatform){
+    if (!isJump && onPlatform){
         vely = 0;
     }
     if (!topClamp()){
@@ -63,7 +66,7 @@ bool Player::topClamp(){
 }
 
 void Player::jump(){
-    vely = -20;
+    vely = -30;
 }
 
 void Player::movex(bool dir){

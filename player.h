@@ -28,8 +28,10 @@ public:
     int x, y;
     int velx, vely;
 
+    ushort health;
+
     bool isJump;
     bool isMove;
     bool isSwitch;
-    bool isPlatform;
+    bool onPlatform;
 };

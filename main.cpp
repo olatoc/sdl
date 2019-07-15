@@ -2,8 +2,11 @@
 
 Game *game;
 
+#define WIDTH 2000
+#define HEIGHT 1500
+
 int main(int argc, const char *argv[]){
-    game = new Game(2000, 1500);
+    game = new Game(WIDTH, HEIGHT);
 
     game->init();
     

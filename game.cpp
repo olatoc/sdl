@@ -6,7 +6,7 @@
 #define ph p->player_rect->h
 #define pw p->player_rect->w
 
-SDL_Rect *tempRect;
+#define E_COUNT (ushort)1
 
 Game::Game(int width, int height){
     if (SDL_Init(SDL_INIT_EVERYTHING) == 0){
@@ -27,17 +27,28 @@ Game::~Game(){
 
 void Game::init(){
     screen = SDL_CreateRGBSurface(0, width, height, 32, 0, 0, 0, 0);
-    count = 0;
+    count = new int(0);
     g = 3;
 
     isRunning = true;
     p = new Player(200,200);
-    e = new Enemy(200,200);
-    plat[0] = new Platform(1000,1000, 800, 50);
-    plat[1] = new Platform(500,500, 800, 50);
-    p->player_init(rend);
-    e->enemy_init(rend);
+    plat[0] = new Platform(1000,1250, 500, 50);
+    plat[1] = new Platform(700,1000, 500, 50);
+    plat[2] = new Platform(400,750, 500, 50);
+    plat[3] = new Platform(100,1300, 500, 50);
+    plat[4] = new Platform(1000,400, 500, 50);
 
+
+    p->player_init(rend);
+    int size;
+    for (int i = 0; i < E_COUNT; i++){
+        size = rand() % 50 + 50;
+        enemies[i] = new Enemy(size,size);
+        enemies[i]->enemy_init(rend);
+        enemies[i]->player = p;
+        enemies[i]->count = count;
+        enemies[i]->enemy_rect->x = i*(2000/10);
+    }
 }
 
 void Game::handleEvents(){
@@ -76,43 +87,77 @@ void Game::handleEvents(){
 
 void Game::update(){
     p->player_update();
-    e->enemy_update();
-    if (count % 2 == 0){
+    for (int i = 0; i < E_COUNT; i++){
+        enemies[i]->enemy_update();
+    }
+    //apply gravity to player and enemies
+    if (*count % 2 == 0){
         p->vely += g;
-        e->vely += 2*g;
+        for (int i = 0; i < E_COUNT; i++){
+            enemies[i]->vely += g*(rand() % 3 + 1);
+        }
     }
-    if (check()){
-        p->isPlatform = true;
-    } else{
-        p->isPlatform = false;
+
+    p->onPlatform = player_onPlatform();
+    for (int i = 0; i < E_COUNT; i++){
+        enemies[i]->onPlatform = enemy_onPlatform(enemies[i]);
+        if (*count % 30 == 0){
+            enemies[i]->shoot();
+        }
     }
-    count++;
-    //printf("%d\n",count);
-    SDL_Delay(33);
+    (*count)++;
+    SDL_Delay(30);
 }
 void Game::render(){
     SDL_RenderClear(rend);
     SDL_SetRenderDrawColor( rend, 0, 0, 100, 255 );
     //Render player
     SDL_RenderCopy(rend, p->player_tex, 0, p->player_rect);
-    //SDL_RenderCopy(rend, e->enemy_tex, 0, e->enemy_rect);
 
-    //Render rects
-    for (int i = 0; i < 2; i++){
+    //Render platforms
+    for (int i = 0; i < 5; i++){
         SDL_RenderFillRect(rend, plat[i]->rect);
     }
+    //Render enemies
+    for (int i = 0; i < E_COUNT; i++){
+        SDL_RenderCopy(rend, enemies[i]->enemy_tex, 0, enemies[i]->enemy_rect);
+        if (enemies[i]->proj_vec.size() > 0){
+            int size = enemies[i]->proj_vec.size();
+            for (int j = 0; j < size; j++){
+                SDL_RenderFillRect(rend, enemies[i]->proj_vec[j]->rect);
+            }
+        }
+
+    }
+    //Render background
     SDL_SetRenderDrawColor( rend, 50, 50, 180, 255 );
     SDL_RenderPresent(rend);
 }
 
-bool Game::check(){
-    //printf("%d\n", sizeof(plat)/sizeof(void*));
-    for (int i = 0; i < 2; i++){
+bool Game::player_onPlatform(){
+    for (int i = 0; i < 5; i++){
         if (px + pw > plat[i]->rect->x
         && px < plat[i]->rect->x + plat[i]->rect->w
         && py  + ph + p->vely > plat[i]->rect->y
         && py + ph < plat[i]->rect->y + 10
         && p->vely > 0){
+            return true;
+        }
+    }
+    return false;
+}
+bool Game::enemy_onPlatform(Enemy *e){
+    int e_x, e_w, e_y, e_h;
+    e_x = e->enemy_rect->x;
+    e_w = e->enemy_rect->w;
+    e_y = e->enemy_rect->y;
+    e_h = e->enemy_rect->h;
+    for (int i = 0; i < 5; i++){
+        if (e_x + e_w > plat[i]->rect->x
+        && e_x < plat[i]->rect->x + plat[i]->rect->w
+        && e_y  + e_h + e->vely > plat[i]->rect->y
+        && e_y + e_h < plat[i]->rect->y + 10
+        && e->vely > 0){
             return true;
         }
     }

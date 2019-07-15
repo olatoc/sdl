@@ -1,9 +1,9 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_timer.h>
-#include "player.h"
 #include "enemy.h"
 #include "env.h"
+//#include "projectile.h"
 
 class Game{
 
@@ -23,7 +23,8 @@ public:
     void player_init();
     void switch_gravity();
     int g;
-    bool check();
+    bool player_onPlatform();
+    bool enemy_onPlatform(Enemy *e);
 
     void handleEvents();
     void update();
@@ -37,7 +38,8 @@ public:
     Player *p;
     Enemy *e;
     Platform *plat[5];
+    Enemy *enemies[10];
 
-    int count;
+    int *count;
 
 };

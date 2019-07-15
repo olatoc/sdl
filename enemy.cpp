@@ -1,9 +1,8 @@
 #include <stdio.h>
-#include <SDL2/SDL.h> 
-#include <SDL2/SDL_image.h>
-#include <SDL2/SDL_timer.h> 
 #include "enemy.h"
 
+#define DIST_P enemy_rect->x + enemy_rect->w/2 - (player->player_rect->x + player->player_rect->w/2)
+#define PROJ_TICK *count % 3 == 0
 
 Enemy::Enemy(int wid, int hgt){
     width = wid;
@@ -22,16 +21,24 @@ void Enemy::enemy_init(SDL_Renderer *render){
     enemy_tex = SDL_CreateTextureFromSurface(render, temp_surface);
     SDL_FreeSurface(temp_surface);
 
+    speed = 5;
+
     enemy_rect = new SDL_Rect();
     enemy_rect->x = 100;
     enemy_rect->y = 500;
     enemy_rect->w = width;
     enemy_rect->h = height;
+
 }
 
 void Enemy::enemy_update(){
+    move();
+    update_proj();
 
-    if (!isJump && !bottomClamp()){
+    if (onPlatform){
+        vely = 0;
+    }
+    if (bottomClamp()){
         vely = 0;
     }
     if (!topClamp()){
@@ -45,6 +52,7 @@ void Enemy::enemy_update(){
     enemy_rect->x += velx;
     enemy_rect->y += vely;
     isMove = false;
+
 }
 
 bool Enemy::leftClamp(){
@@ -54,7 +62,7 @@ bool Enemy::rightClamp(){
     return enemy_rect->x + velx > 2000 - enemy_rect->w ? true : false;
 }
 bool Enemy::bottomClamp(){
-    return enemy_rect->y + vely < 1500 - height ? true : false;
+    return enemy_rect->y + vely < 1500 - height ? false : true;
 }
 bool Enemy::topClamp(){
     return enemy_rect->y + vely > 0 ? true : false;
@@ -64,15 +72,38 @@ void Enemy::jump(){
     vely = -20;
 }
 
-void Enemy::move(bool dir){
-    if (dir){
-        velx = 5;
+void Enemy::move(){
+    if (DIST_P < 0){
+        velx = speed;
     } else{
-        velx = -5;
+        velx = -speed;
     }
 }
 
-void Enemy_events();
+void Enemy::shoot(){
+    proj_vec.push_back(new Projectile(enemy_rect->x, enemy_rect->y, velx > 0 ? 10 : -10, rand()));
+}
 
-void Enemy_render();
-void Enemy_clean();
+void Enemy::delete_proj(Projectile *proj){
+    ushort id = proj->id;
+    for (int i = 0; i < proj_vec.size(); i++){
+        if (proj_vec[i]->id == id){
+            proj_vec.erase(proj_vec.begin() + i);
+        }
+    }
+}
+
+void Enemy::update_proj(){
+    int size = proj_vec.size();
+    for (int i = 0; i < size; i++){
+        proj_vec[i]->move();
+        if (PROJ_TICK){
+            if (proj_vec[i]->hit_player(player)){
+                delete_proj(proj_vec[i]);
+            } else if (proj_vec[i]->out_of_bounds()){
+                delete_proj(proj_vec[i]);
+                player->health -= 1;
+            }
+        }
+    }
+}
